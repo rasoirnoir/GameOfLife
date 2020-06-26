@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys
+import sys, time
 
 
 '''
@@ -11,7 +11,7 @@ import sys
         - Une cellule ayant moins de 2 ou plus de 3 voisins vivants meurt (ou reste morte)
 '''
 
-DEBUG = True
+DEBUG = False
 
 #Définition des règles du jeu
 def alive(vivante, nb_voisines):
@@ -39,15 +39,34 @@ def main(argv):
 
         try:
             with open(fileName, 'r') as stream:
-                initialBoard = stream.read().split()
+                boardDegeu = stream.read().split()
+                for i in range(len(boardDegeu)):
+                    ligne = []
+                    for j in range(len(boardDegeu[i])):
+                        ligne.append(boardDegeu[i][j])
+                    initialBoard.append(ligne)
                 if DEBUG: 
                     print('Initial board :')
                     displayMatrice(initialBoard)
+                    print(initialBoard)
         except FileNotFoundError:
             print('{} not found. Exiting...'.format(fileName))
             exit(1)
         
-        nextIte(initialBoard)
+        gameStart(initialBoard)
+
+def gameStart(board):
+    tmpBoard = board
+    nextBoard = []
+    while True:
+        displayMatrice(tmpBoard)
+        nextBoard = nextIte(tmpBoard)
+        if nextBoard == tmpBoard:
+            break
+        tmpBoard = nextBoard
+        time.sleep(1)
+    
+
         
         
 def nextIte(board):
@@ -87,11 +106,14 @@ def nextIte(board):
             voisine[line][col] = nbVoisines
             if alive(board[line][col] == '1', nbVoisines):
                 nextBoard[line][col] = '1'
+            else:
+                nextBoard[line][col] = '0'
     if DEBUG: 
         print('Matrice voisines :')
         displayMatrice(voisine)
         print('Matrice suivante :')
         displayMatrice(nextBoard)
+    return nextBoard
 
     
 
