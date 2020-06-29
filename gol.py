@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-import sys, time
+import sys, time, pyglet
+from pyglet import shapes
 
 
 '''
@@ -9,9 +10,36 @@ import sys, time
         - Une cellule avec 2 ou 3 voisins survit
         - Une cellule morte avec 3 voisins vivant devient vivante
         - Une cellule ayant moins de 2 ou plus de 3 voisins vivants meurt (ou reste morte)
+
+        - résumé en 2 règles : 
+            - 2 voisines => même état
+            - 3 voisine => vivante
 '''
 
 DEBUG = False
+
+
+class MyWindow(pyglet.window.Window):
+    def __init__(self, initialBoard, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.set_minimum_size(400, 300)
+        self.color = (0, 0, 0)
+        self._board = initialBoard
+        gameStart(self._board)
+        self._batch = pyglet.graphics.Batch()
+        
+    
+    def on_draw(self):
+        self.clear()
+        print("on_draw()")
+        self.liveCell()
+        self._batch.draw()
+    
+    def on_resize(self, width, height):
+        print("on_resize({}, {})".format(width, height))
+
+    def liveCell(self):
+        return shapes.Circle(x=400, y=300, radius=100, color=(255, 255, 255), batch=self._batch)
 
 #Définition des règles du jeu
 def alive(vivante, nb_voisines):
@@ -20,7 +48,6 @@ def alive(vivante, nb_voisines):
         3: True
     }
     return switcher.get(nb_voisines, False)
-
 
 def help():
     print('usage: python gol.py <file>')
@@ -52,8 +79,10 @@ def main(argv):
         except FileNotFoundError:
             print('{} not found. Exiting...'.format(fileName))
             exit(1)
-        
-        gameStart(initialBoard)
+
+        window = MyWindow(initialBoard, 800, 600, "Le Jeu de la Vie", resizable=True)
+        pyglet.app.run()
+        # gameStart(initialBoard)
 
 def gameStart(board):
     tmpBoard = board
@@ -65,9 +94,6 @@ def gameStart(board):
             break
         tmpBoard = nextBoard
         time.sleep(1)
-    
-
-        
         
 def nextIte(board):
     #Iteration suivante du jeu suivant les règles définies
@@ -114,9 +140,6 @@ def nextIte(board):
         print('Matrice suivante :')
         displayMatrice(nextBoard)
     return nextBoard
-
-    
-
 
 def displayMatrice(matrice):
     ouptut = ''
