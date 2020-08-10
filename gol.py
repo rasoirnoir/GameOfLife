@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-import sys, time, pyglet
-from pyglet import shapes
-
+import sys, time, pygame
 
 '''
     implémentation en python du célèbre automate cellulaire.
@@ -18,28 +16,6 @@ from pyglet import shapes
 
 DEBUG = False
 
-
-class MyWindow(pyglet.window.Window):
-    def __init__(self, initialBoard, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.set_minimum_size(400, 300)
-        self.color = (0, 0, 0)
-        self._board = initialBoard
-        gameStart(self._board)
-        self._batch = pyglet.graphics.Batch()
-        
-    
-    def on_draw(self):
-        self.clear()
-        print("on_draw()")
-        self.liveCell()
-        self._batch.draw()
-    
-    def on_resize(self, width, height):
-        print("on_resize({}, {})".format(width, height))
-
-    def liveCell(self):
-        return shapes.Circle(x=400, y=300, radius=100, color=(255, 255, 255), batch=self._batch)
 
 #Définition des règles du jeu
 def alive(vivante, nb_voisines):
@@ -79,10 +55,20 @@ def main(argv):
         except FileNotFoundError:
             print('{} not found. Exiting...'.format(fileName))
             exit(1)
+        gameStart(initialBoard)
+        pygame.init()
+        size = width, height = 800, 600
+        screen = pygame.display.set_mode(size)
+        caption = pygame.display.set_caption("Game of Life")
+        background = pygame.Rect(0, 0, width, height)
+        pygame.Surface.fill(screen, pygame.Color(255, 255, 255))
+        #pygame.draw.rect(screen, (255, 255, 255), background)
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
 
-        window = MyWindow(initialBoard, 800, 600, "Le Jeu de la Vie", resizable=True)
-        pyglet.app.run()
-        # gameStart(initialBoard)
 
 def gameStart(board):
     tmpBoard = board
