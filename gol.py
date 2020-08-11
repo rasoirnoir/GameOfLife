@@ -15,6 +15,7 @@ import sys, time, pygame
 '''
 
 DEBUG = False
+FPS = 2
 
 
 #Définition des règles du jeu
@@ -56,30 +57,54 @@ def main(argv):
             print('{} not found. Exiting...'.format(fileName))
             exit(1)
         gameStart(initialBoard)
-        pygame.init()
-        size = width, height = 800, 600
-        screen = pygame.display.set_mode(size)
-        caption = pygame.display.set_caption("Game of Life")
-        background = pygame.Rect(0, 0, width, height)
-        pygame.Surface.fill(screen, pygame.Color(255, 255, 255))
-        #pygame.draw.rect(screen, (255, 255, 255), background)
-        running = True
-        while running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
+        
 
 
 def gameStart(board):
+
     tmpBoard = board
     nextBoard = []
-    while True:
-        displayMatrice(tmpBoard)
-        nextBoard = nextIte(tmpBoard)
-        if nextBoard == tmpBoard:
-            break
-        tmpBoard = nextBoard
-        time.sleep(1)
+
+    pygame.init()
+    size = width, height = 800, 600
+    smallest = width if width < height else height
+    screen = pygame.display.set_mode(size)
+    caption = pygame.display.set_caption("Game of Life")
+    screen.fill((255, 255, 255))
+
+    cell_size = smallest / len(board[0])
+    #cell = pygame.Rect(0, 0, cell_size, cell_size)
+    #pygame.draw.rect(screen, (0, 0, 0), cell)
+
+    
+    running = True
+    finished = False
+    while running:    
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+        while not finished:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                    finished = True
+            displayMatrice(tmpBoard)
+            drawMatrice(screen, tmpBoard, cell_size)
+            nextBoard = nextIte(tmpBoard)
+            pygame.display.flip()
+            if nextBoard == tmpBoard:
+                finished = True
+            tmpBoard = nextBoard
+            time.sleep(1 / FPS)
+
+
+def drawMatrice(surface, matrice, cell_size):
+    surface.fill((255, 255, 255))
+    for i in range(len(matrice)):
+        for j in range(len(matrice[0])):
+            if(matrice[i][j] == '1'):
+                pygame.draw.rect(surface, (0, 0, 0), pygame.Rect(j * cell_size, i * cell_size, cell_size, cell_size))
+
         
 def nextIte(board):
     #Iteration suivante du jeu suivant les règles définies
