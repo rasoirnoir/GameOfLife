@@ -15,7 +15,7 @@ import sys, time, pygame
 '''
 
 DEBUG = False
-FPS = 2
+FPS = 10
 
 
 #Définition des règles du jeu
