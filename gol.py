@@ -66,7 +66,7 @@ def gameStart(board):
     nextBoard = []
 
     pygame.init()
-    size = width, height = 800, 600
+    size = width, height = 700, 700
     smallest = width if width < height else height
     screen = pygame.display.set_mode(size)
     caption = pygame.display.set_caption("Game of Life")

@@ -21,8 +21,18 @@ def main():
         displayMatrice(finalMatrix)
     else:
         print("Writing to the file {}".format(FILE))
-        //TODO: ecriture dans un fichier
-    
+        writeFile(finalMatrix)
+
+
+
+def writeFile(matrix):
+    line = ""
+    with open(FILE, "w") as f:
+        for row in matrix:
+            line = line.join(row)
+            f.write(line + "\n")
+            line = ""
+
 
 
 def displayMatrice(matrice):
@@ -74,7 +84,7 @@ if __name__ == "__main__":
 
     parser.add_argument("size", help="The number of cells in a line of the field.", type=int)
     parser.add_argument("percentage", help="The percentage of living cells covering the field. (between 0 and 100)", type=int)
-    parser.add_argument("-f", "--file", help="A text file were the generated field will be written.")
+    parser.add_argument("-f", "--file", help="A text file were the generated field will be written.", default="")
 
     args = parser.parse_args()
 
