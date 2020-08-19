@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-import sys, time, pyglet
-from pyglet import shapes
-
+import sys, time, pygame
 
 '''
     implémentation en python du célèbre automate cellulaire.
@@ -17,29 +15,8 @@ from pyglet import shapes
 '''
 
 DEBUG = False
+FPS = 10
 
-
-class MyWindow(pyglet.window.Window):
-    def __init__(self, initialBoard, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.set_minimum_size(400, 300)
-        self.color = (0, 0, 0)
-        self._board = initialBoard
-        gameStart(self._board)
-        self._batch = pyglet.graphics.Batch()
-        
-    
-    def on_draw(self):
-        self.clear()
-        print("on_draw()")
-        self.liveCell()
-        self._batch.draw()
-    
-    def on_resize(self, width, height):
-        print("on_resize({}, {})".format(width, height))
-
-    def liveCell(self):
-        return shapes.Circle(x=400, y=300, radius=100, color=(255, 255, 255), batch=self._batch)
 
 #Définition des règles du jeu
 def alive(vivante, nb_voisines):
@@ -79,21 +56,55 @@ def main(argv):
         except FileNotFoundError:
             print('{} not found. Exiting...'.format(fileName))
             exit(1)
+        gameStart(initialBoard)
+        
 
-        window = MyWindow(initialBoard, 800, 600, "Le Jeu de la Vie", resizable=True)
-        pyglet.app.run()
-        # gameStart(initialBoard)
 
 def gameStart(board):
+
     tmpBoard = board
     nextBoard = []
-    while True:
-        displayMatrice(tmpBoard)
-        nextBoard = nextIte(tmpBoard)
-        if nextBoard == tmpBoard:
-            break
-        tmpBoard = nextBoard
-        time.sleep(1)
+
+    pygame.init()
+    size = width, height = 700, 700
+    smallest = width if width < height else height
+    screen = pygame.display.set_mode(size)
+    caption = pygame.display.set_caption("Game of Life")
+    screen.fill((255, 255, 255))
+
+    cell_size = smallest / len(board[0])
+    #cell = pygame.Rect(0, 0, cell_size, cell_size)
+    #pygame.draw.rect(screen, (0, 0, 0), cell)
+
+    
+    running = True
+    finished = False
+    while running:    
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+        while not finished:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                    finished = True
+            displayMatrice(tmpBoard)
+            drawMatrice(screen, tmpBoard, cell_size)
+            nextBoard = nextIte(tmpBoard)
+            pygame.display.flip()
+            if nextBoard == tmpBoard:
+                finished = True
+            tmpBoard = nextBoard
+            time.sleep(1 / FPS)
+
+
+def drawMatrice(surface, matrice, cell_size):
+    surface.fill((255, 255, 255))
+    for i in range(len(matrice)):
+        for j in range(len(matrice[0])):
+            if(matrice[i][j] == '1'):
+                pygame.draw.rect(surface, (0, 0, 0), pygame.Rect(j * cell_size, i * cell_size, cell_size, cell_size))
+
         
 def nextIte(board):
     #Iteration suivante du jeu suivant les règles définies
