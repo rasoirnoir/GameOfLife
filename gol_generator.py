@@ -10,6 +10,7 @@ import argparse, sys, random
 SIZE = 0
 PERCENTAGE_COVERED = 0
 FILE = ""
+VERSION = "1.0"
 
 
 def main():
@@ -75,6 +76,8 @@ def choosingLiveCells(cellsList, numberOfLivingCells):
         cellsList.pop(index)
     return livingCellsList
 
+def version():
+    print("gol_generator.py version {} by Cactuspin, 2020".format(VERSION))
 
 
 if __name__ == "__main__":
@@ -85,8 +88,13 @@ if __name__ == "__main__":
     parser.add_argument("size", help="The number of cells in a line of the field.", type=int)
     parser.add_argument("percentage", help="The percentage of living cells covering the field. (between 0 and 100)", type=int)
     parser.add_argument("-f", "--file", help="A text file were the generated field will be written.", default="")
+    parser.add_argument("-v", "--version", help="Display the version number of this program", action="store_true")
 
     args = parser.parse_args()
+
+    if args.version:
+        version()
+        sys.exit(0)
 
     if args.percentage < 0 or args.percentage > 100:
         print("Percentage must be between 0 and 100. See --help option for more details.")

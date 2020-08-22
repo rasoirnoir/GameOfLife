@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, time, pygame
+import sys, time, pygame, argparse
 
 '''
     implémentation en python du célèbre automate cellulaire.
@@ -16,7 +16,11 @@ import sys, time, pygame
 
 DEBUG = False
 FPS = 10
+FILE = ""
+VERSION = "1.0"
 
+def version():
+    print("gol.py version {} by CactusPin, 2020.".format(VERSION))
 
 #Définition des règles du jeu
 def alive(vivante, nb_voisines):
@@ -30,33 +34,25 @@ def help():
     print('usage: python gol.py <file>')
     print('       Where <file> is the descriptive matrice of the initial board')
 
-def main(argv):
+def main():
     if DEBUG: print('debug mode ON')
-    fileName = ''
-    if len(argv) != 1:
-        help()
+    initialBoard = []
+    try:
+        with open(FILE, 'r') as stream:
+            boardDegeu = stream.read().split()
+            for i in range(len(boardDegeu)):
+                ligne = []
+                for j in range(len(boardDegeu[i])):
+                    ligne.append(boardDegeu[i][j])
+                initialBoard.append(ligne)
+            if DEBUG:
+                print('Initial board :')
+                displayMatrice(initialBoard)
+                print(initialBoard)
+    except FileNotFoundError:
+        print('{} not found. Exiting...'.format(FILE))
         exit(1)
-    
-    if len(argv) == 1:
-        fileName = argv[0]
-        initialBoard = []
-
-        try:
-            with open(fileName, 'r') as stream:
-                boardDegeu = stream.read().split()
-                for i in range(len(boardDegeu)):
-                    ligne = []
-                    for j in range(len(boardDegeu[i])):
-                        ligne.append(boardDegeu[i][j])
-                    initialBoard.append(ligne)
-                if DEBUG: 
-                    print('Initial board :')
-                    displayMatrice(initialBoard)
-                    print(initialBoard)
-        except FileNotFoundError:
-            print('{} not found. Exiting...'.format(fileName))
-            exit(1)
-        gameStart(initialBoard)
+    gameStart(initialBoard)
         
 
 
@@ -171,4 +167,21 @@ def newMatrice(height, width):
     
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    parser = argparse.ArgumentParser(description='''The Game Of Life, running from a file containing a matrix
+    describing the game board.
+    ''')
+
+    parser.add_argument("file", help="The file containing the game board as a matrix.")
+    parser.add_argument("-v", "--version", help="prints the version and exits.", action="store_true")
+    parser.add_argument("-s", "--speed", help="The speed of the game in frames per second (fps)")
+
+    args = parser.parse_args()
+
+    if args.version:
+        version()
+        sys.exit(0)
+    if args.speed:
+        FPS = int(args.speed)
+
+    FILE = args.file
+    main()
